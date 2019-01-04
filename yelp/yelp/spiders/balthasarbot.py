@@ -24,9 +24,10 @@ class BalthasarbotSpider(scrapy.Spider):
         return cleantext
 
     def __init__(self):
-        options = Options()
-        options.headless = True
-        self.driver = webdriver.Chrome("C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe")
+        self.options = Options()
+        self.options.headless = True
+        self.options.set_headless(headless=True)
+        self.driver = webdriver.Chrome(options=self.options, executable_path="C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe")
     def scroll_until_loaded(self):
         check_height = self.driver.execute_script("return document.body.scrollHeight;")
         while True:
@@ -47,8 +48,9 @@ class BalthasarbotSpider(scrapy.Spider):
         for i,r in enumerate(response.css("div.review-content > p").extract()):
             reviews [str(i+1)] = self.cleanhtml(r)
         ratings = dict()
-        for i,r in enumerate(response.css("div.i-stars.i-stars--regular-5.rating-large ::text").extract()):
-            ratings [str(i+1)] = r
+        for i, r in enumerate(response.xpath('//*[@class="i-stars i-stars--regular-5 rating-large"]/@title').extract()):
+        #for i,r in enumerate(response.css("div.i-stars.i-stars--regular-5.rating-large ::text").extract()):
+            ratings [str(i+1)] = r.strip()
         #NEXT_PAGE_SELECTOR = 'a.tab-link.js-dropdown-link.tab-link--dropdown.js-tab-link--dropdown ::attr(href)'
 
         NEXT_PAGE_SELECTOR = '.u-decoration-none.next.pagination-links_anchor ::attr(href)'
@@ -62,6 +64,7 @@ class BalthasarbotSpider(scrapy.Spider):
                #"review 3rd" : res.css("div.review-content > p").extract(),
                #"review 4th" : res.css("div.review-content > p::text").extract()
                "reviews" : reviews,
+               "ratings" : ratings,
                "Next page is" : (str(next_page), bool(next_page))
                }
 
