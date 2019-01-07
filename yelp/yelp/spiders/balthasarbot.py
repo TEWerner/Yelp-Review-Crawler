@@ -39,11 +39,12 @@ class BalthasarbotSpider(scrapy.Spider):
             except TimeoutException:
                 break
     def parse(self, response):
+        page = response.meta.get('page') # current page
         self.driver.get(response.url)
         wait = WebDriverWait(self.driver, 10)
         rev = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.review-sidebar")))
         res = response.replace(body=self.driver.page_source)
-
+        open_in_browser(response)
         reviews = dict()
         for i,r in enumerate(response.css("div.review-content > p").extract()):
             reviews [str(i+1)] = self.cleanhtml(r)
@@ -63,6 +64,7 @@ class BalthasarbotSpider(scrapy.Spider):
                #"review 2nd" : res.css("div.review-content > p").extract_first(),
                #"review 3rd" : res.css("div.review-content > p").extract(),
                #"review 4th" : res.css("div.review-content > p::text").extract()
+               "page number" : page,
                "reviews" : reviews,
                "ratings" : ratings,
                "Next page is" : (str(next_page), bool(next_page))
@@ -72,11 +74,12 @@ class BalthasarbotSpider(scrapy.Spider):
 
         #NEXT_PAGE_SELECTOR = 'a.tab-link.js-dropdown-link.tab-link--dropdown.js-tab-link--dropdown ::attr(href)'
 
-        self.driver.quit()
-        # time.sleep(10)
-        # if next_page:
-        #     yield scrapy.Request(
-        #         response.urljoin(next_page),
-        #         #res.urljoin(next_page),
-        #         callback=self.parse
-        #     )
+        #self.driver.quit() # if we quit at this point the request will fail
+        time.sleep(5)
+        if next_page:
+            yield scrapy.Request(
+            response.urljoin(next_page),
+            #res.urljoin(next_page),
+            callback=self.parse,
+            meta={'hero_item': item}
+        )
