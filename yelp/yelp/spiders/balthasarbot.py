@@ -16,7 +16,7 @@ class BalthasarbotSpider(scrapy.Spider):
     allowed_domains = ['yelp.de','yelp.com']
     #start_urls = ['http://https://www.yelp.com/biz/restaurant-balthasar-paderborn/']
     #start_urls = ['https://www.yelp.com/biz/restaurant-balthasar-paderborn/']
-    start_urls = ["https://www.yelp.de/biz/argentina-paderborn-2"]
+    start_urls = ["https://www.yelp.com/biz/argentina-paderborn-2"]
     cleanr = re.compile('<.*?>')
 
     def cleanhtml(self, raw_html):
@@ -42,13 +42,14 @@ class BalthasarbotSpider(scrapy.Spider):
     def parse(self, response):
         self.driver.get(response.url)
         restaurant_reviews = {}
-    # TODO: The restaurant passing needs to be dynamically
+        # TODO: The restaurant passing needs to be dynamically
         yield scrapy.Request(
             response.urljoin(response.url),
             callback=self.parse_restaurant,
             meta={'page': 1, 'results':restaurant_reviews}
         )
         #yield response.meta.get('results')
+        #self.driver.quit()  # if we quit at this point the request will fail
     def parse_restaurant(self, response):
         results = response.meta.get('results')
         page = response.meta.get('page') # current page
@@ -77,7 +78,7 @@ class BalthasarbotSpider(scrapy.Spider):
                     #div.xpath('//a[@class="biz-shim js-lightbox-media-link js-analytics-click"]/@href').extract())
                 #pictures.append(div.css(' > p').extract()))
             else:
-                pictures.append("Picture not found")
+                pictures.append("No picture found")
         for i, r in enumerate(reviews):
             try:
                 results[response.css("h1.biz-page-title.embossed-text-white::text").extract_first().strip()].append((ratings[i],r,pictures[i]))
@@ -100,12 +101,11 @@ class BalthasarbotSpider(scrapy.Spider):
                         "Next page is": (str(next_page), bool(next_page))
                         }
 
-        # open_in_browser(response) #   useful to see what Scrapy sees
+        open_in_browser(response) #   useful to see what Scrapy sees
 
         # NEXT_PAGE_SELECTOR = 'a.tab-link.js-dropdown-link.tab-link--dropdown.js-tab-link--dropdown ::attr(href)'
 
-        # self.driver.quit() # if we quit at this point the request will fail
-        time.sleep(5)
+        time.sleep(3)
         if next_page:
             yield scrapy.Request(
                 response.urljoin(next_page),
@@ -113,5 +113,16 @@ class BalthasarbotSpider(scrapy.Spider):
                 callback=self.parse_restaurant,
                 meta={'page': page+1, 'results':results}
                 )
+
+
+        if 'de' in response.xpath('.//*[@class="tab-link js-dropdown-link tab-link--dropdown js-tab-link--dropdown"]/@data-lang').extract():
+            ger_page = response.xpath('.//*[@class="tab-link js-dropdown-link tab-link--dropdown js-tab-link--dropdown" and @data-lang="de"]/@href').extract_first()
+            yield scrapy.Request(
+                response.urljoin(ger_page),
+                callback=self.parse_restaurant,
+                meta={'page': page + 1, 'results': results}
+            )
         else:
+            results['German'] = response.xpath('.//*[@class="tab-link js-dropdown-link tab-link--dropdown js-tab-link--dropdown"]/@data-lang').extract_first()
+            results['link'] = response.xpath('.//*[@class="tab-link js-dropdown-link tab-link--dropdown js-tab-link--dropdown" and @data-lang="de"]/@href').extract()
             yield results

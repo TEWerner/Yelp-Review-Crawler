@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="88de2626-c811-458e-870d-8095974fc042" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/yelp/yelp/spiders/balthasarbot.py" beforeDir="false" afterPath="$PROJECT_DIR$/yelp/yelp/spiders/balthasarbot.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,12 +16,11 @@
       <file leaf-file-name="balthasarbot.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/yelp/yelp/spiders/balthasarbot.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="214">
-              <caret line="71" column="30" selection-start-line="71" selection-start-column="30" selection-end-line="71" selection-end-column="30" />
+            <state relative-caret-position="384">
+              <caret line="51" column="9" selection-start-line="51" selection-start-column="9" selection-end-line="51" selection-end-column="9" />
               <folding>
                 <element signature="e#24#37#0" expanded="true" />
-                <element signature="e#3813#4857#0" />
-                <element signature="e#3932#3999#0" />
+                <element signature="e#4455#5499#0" />
               </folding>
             </state>
           </provider>
@@ -31,15 +29,10 @@
       <file leaf-file-name="settings.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/yelp/yelp/settings.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
+            <state relative-caret-position="493">
               <caret line="29" selection-start-line="29" selection-end-line="29" />
             </state>
           </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Local (1)" pinned="false" current-in-tab="false">
-        <entry file="mock:///Local (1)">
-          <provider selected="true" editor-type-id="terminal-session-editor" />
         </entry>
       </file>
       <file leaf-file-name="quotes_spider.py" pinned="false" current-in-tab="false">
@@ -49,6 +42,11 @@
               <caret line="6" column="43" selection-start-line="6" selection-start-column="9" selection-end-line="6" selection-end-column="43" />
             </state>
           </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Local (1)" pinned="false" current-in-tab="false">
+        <entry file="mock:///Local (1)">
+          <provider selected="true" editor-type-id="terminal-session-editor" />
         </entry>
       </file>
     </leaf>
@@ -100,6 +98,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -129,7 +128,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -212,6 +210,11 @@
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <option name="time" value="1" />
+    </breakpoint-manager>
+  </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/yelp/yelp/spiders/balthasarbot.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -219,8 +222,7 @@
           <caret line="44" column="29" lean-forward="true" selection-start-line="44" selection-start-column="29" selection-end-line="44" selection-end-column="29" />
           <folding>
             <element signature="e#24#37#0" expanded="true" />
-            <element signature="e#3813#4857#0" />
-            <element signature="e#3932#3999#0" />
+            <element signature="e#4455#5499#0" />
           </folding>
         </state>
       </provider>
@@ -259,8 +261,7 @@
           <caret line="40" column="21" lean-forward="true" selection-start-line="40" selection-start-column="21" selection-end-line="40" selection-end-column="21" />
           <folding>
             <element signature="e#24#37#0" expanded="true" />
-            <element signature="e#3813#4857#0" />
-            <element signature="e#3932#3999#0" />
+            <element signature="e#4455#5499#0" />
           </folding>
         </state>
       </provider>
@@ -292,8 +293,7 @@
           <caret line="29" column="77" selection-start-line="29" selection-start-column="77" selection-end-line="29" selection-end-column="77" />
           <folding>
             <element signature="e#24#37#0" expanded="true" />
-            <element signature="e#3813#4857#0" />
-            <element signature="e#3932#3999#0" />
+            <element signature="e#4455#5499#0" />
           </folding>
         </state>
       </provider>
@@ -325,8 +325,7 @@
           <caret line="8" column="53" selection-start-line="8" selection-start-column="53" selection-end-line="8" selection-end-column="53" />
           <folding>
             <element signature="e#24#37#0" expanded="true" />
-            <element signature="e#3813#4857#0" />
-            <element signature="e#3932#3999#0" />
+            <element signature="e#4455#5499#0" />
           </folding>
         </state>
       </provider>
@@ -506,7 +505,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/yelp/yelp/settings.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
+        <state relative-caret-position="493">
           <caret line="29" selection-start-line="29" selection-end-line="29" />
         </state>
       </provider>
@@ -541,12 +540,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/yelp/yelp/spiders/balthasarbot.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="214">
-          <caret line="71" column="30" selection-start-line="71" selection-start-column="30" selection-end-line="71" selection-end-column="30" />
+        <state relative-caret-position="384">
+          <caret line="51" column="9" selection-start-line="51" selection-start-column="9" selection-end-line="51" selection-end-column="9" />
           <folding>
             <element signature="e#24#37#0" expanded="true" />
-            <element signature="e#3813#4857#0" />
-            <element signature="e#3932#3999#0" />
+            <element signature="e#4455#5499#0" />
           </folding>
         </state>
       </provider>
