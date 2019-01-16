@@ -64,10 +64,9 @@ DOWNLOAD_DELAY = 0.25
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-ITEM_PIPELINES = {
-    #'yelp.pipelines.YelpPipeline': 300,
-    'yelp.pipelines.JsonPipeline': 300,
-}
+#ITEM_PIPELINES = {
+#    'yelp.pipelines.YelpPipeline': 300,
+#}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html

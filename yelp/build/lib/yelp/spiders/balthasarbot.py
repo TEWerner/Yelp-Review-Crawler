@@ -10,7 +10,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 import re
 import time
-#scrapy crawl <spider name> -o file.csv
+
 class BalthasarbotSpider(scrapy.Spider):
     name = 'balthasarbot'
     allowed_domains = ['yelp.de','yelp.com']
@@ -41,33 +41,30 @@ class BalthasarbotSpider(scrapy.Spider):
                 break
     def parse(self, response):
         self.driver.get(response.url)
-        restaurant_reviews = {} # the key is the name of the restaurants and the items are a tuples with the reviews
+        restaurant_reviews = {}
         # TODO: search for example each city to get a list of restaurants (disjoint lists at best)
         yield scrapy.Request(
             response.urljoin(response.url),
             callback=self.parse_search_result,
-            meta={'results':restaurant_reviews}     #TODO:  This dict is empty for new Requests, and is usually populated by different Scrapy components
+            meta={'results':restaurant_reviews}     #TODO: most likely this is the error
         )
-        #restaurant_reviews = response.meta.get('results')
+        #yield response.meta.get('results')
         #self.driver.quit()  # if we quit at this / any point the request will fail
 
-        #yield restaurant_reviews
     def parse_search_result(self, response):
         # TODO: The restaurant passing needs to be dynamically
-        restaurant_reviews = response.meta.get('results')
         for l in response.xpath("//*/h3/a"):
             #RESTAURANT_SELECTOR = l.xpath("/@href").extract()
             RESTAURANT_LINK = "https://www.yelp.com" + l.xpath("./@href").extract()[0]
-            #response.meta['page'] = 1
+            response.meta['page'] = 1
             yield scrapy.Request(
                 response.urljoin(RESTAURANT_LINK),
-                callback=self.parse_restaurant,
-                meta = {'results': {}, 'page': 1}
+                callback=self.parse_restaurant
             )
 
     def parse_restaurant(self, response):
         self.driver.get(response.url)
-        restaurant_reviews = response.meta.get('results')
+        results = response.meta.get('results')
         page = response.meta.get('page') # current page
 
         wait = WebDriverWait(self.driver, 10)
@@ -76,11 +73,10 @@ class BalthasarbotSpider(scrapy.Spider):
         # open_in_browser(response)
         if page == 1:
             try:
-                restaurant_reviews[response.css(
+                results[response.css(
                     "h1.biz-page-title.embossed-text-white.shortenough::text").extract_first().strip()] = []
             except TypeError:
-                restaurant_reviews[response.css(
-                    "h1.biz-page-title.embossed-text-white::text").extract_first().strip()] = []
+                results[response.css("h1.biz-page-title.embossed-text-white::text").extract_first().strip()] = []
 
         reviews = []
         for i, r in enumerate(response.css("div.review-content > p").extract()):
@@ -102,14 +98,11 @@ class BalthasarbotSpider(scrapy.Spider):
                 pictures.append("No picture found")
         for i, r in enumerate(reviews):
             try:
-                try:
-                    name = response.css("h1.biz-page-title.embossed-text-white::text").extract_first().strip()
-                    restaurant_reviews[name].append((ratings[i],r,pictures[i]))
-                except TypeError:
-                    name = response.css("h1.biz-page-title.embossed-text-white.shortenough::text").extract_first().strip()
-                    restaurant_reviews[name].append((ratings[i],r,pictures[i]))
+                name = response.css("h1.biz-page-title.embossed-text-white::text").extract_first().strip()
+                results[name].append((ratings[i],r,pictures[i]))
             except TypeError:
-                print("Do nothing or to do")
+                name = response.css("h1.biz-page-title.embossed-text-white.shortenough::text").extract_first().strip()
+                results[name].append((ratings[i],r,pictures[i]))
         NEXT_PAGE_SELECTOR = '.u-decoration-none.next.pagination-links_anchor ::attr(href)'
         next_page = response.css(NEXT_PAGE_SELECTOR).extract_first()
 
@@ -127,33 +120,33 @@ class BalthasarbotSpider(scrapy.Spider):
                         "Next page is": (str(next_page), bool(next_page))
                         }
 
-        #open_in_browser(response) #   useful to see what Scrapy sees
+        open_in_browser(response) #   useful to see what Scrapy sees
 
         # NEXT_PAGE_SELECTOR = 'a.tab-link.js-dropdown-link.tab-link--dropdown.js-tab-link--dropdown ::attr(href)'
-        #response.meta['results'] = restaurant_reviews
-
+        response.meta['results'] = results
+        response.meta['page'] = page + 1
         time.sleep(3)
         if next_page:
-            response.meta['page'] = page + 1
+            #response.meta['page'] = page + 1
+
             yield scrapy.Request(
                 response.urljoin(next_page),
                 # res.urljoin(next_page),
                 callback=self.parse_restaurant,
-                meta={'page': page+1, 'results':restaurant_reviews}
+                #meta={'page': page+1, 'results':results}
                 )
 
 
-        elif 'de' in response.xpath('.//*[@class="tab-link js-dropdown-link tab-link--dropdown js-tab-link--dropdown"]/@data-lang').extract():
+        if 'de' in response.xpath('.//*[@class="tab-link js-dropdown-link tab-link--dropdown js-tab-link--dropdown"]/@data-lang').extract():
             ger_page = response.xpath('.//*[@class="tab-link js-dropdown-link tab-link--dropdown js-tab-link--dropdown" and @data-lang="de"]/@href').extract_first()
             #response.meta['page'] = page + 1
             #response.meta['results'] = results
-            #response.meta['page'] = 1
             yield scrapy.Request(
                 response.urljoin(ger_page),
                 callback=self.parse_restaurant,
-                meta={'page': 1, 'results':restaurant_reviews}
+                #meta={'page': page+1, 'results':results}
             )
         else:
             #results['German'] = response.xpath('.//*[@class="tab-link js-dropdown-link tab-link--dropdown js-tab-link--dropdown"]/@data-lang').extract_first()
             #results['link'] = response.xpath('.//*[@class="tab-link js-dropdown-link tab-link--dropdown js-tab-link--dropdown" and @data-lang="de"]/@href').extract()
-            yield restaurant_reviews
+            yield results
