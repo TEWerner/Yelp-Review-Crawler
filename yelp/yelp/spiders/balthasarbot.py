@@ -69,26 +69,43 @@ class BalthasarbotSpider(scrapy.Spider):
         self.driver.get(response.url)
         restaurant_reviews = response.meta.get('results')
         page = response.meta.get('page') # current page
-
         wait = WebDriverWait(self.driver, 10)
         rev = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.review-sidebar")))
-        res = response.replace(body=self.driver.page_source)
-        # open_in_browser(response)
+        #res = response.replace(body=self.driver.page_source)
+        response = response.replace(body=self.driver.page_source)
+        #open_in_browser(response)
+
         if page == 1:
             try:
-                restaurant_reviews[response.css(
-                    "h1.biz-page-title.embossed-text-white.shortenough::text").extract_first().strip()] = []
+                name = response.css(
+                    "h1.biz-page-title.embossed-text-white::text").extract_first().strip()
+                # if name == None:
+                #     raise TypeError('Name is None.')
+                restaurant_reviews[name] = []
+            except AttributeError:
+                name = response.css(
+                    "h1.biz-page-title.embossed-text-white.shortenough::text").extract_first().strip()
+                restaurant_reviews[name] = []
             except TypeError:
-                restaurant_reviews[response.css(
-                    "h1.biz-page-title.embossed-text-white::text").extract_first().strip()] = []
+                name = response.css(
+                    "h1.biz-page-title.embossed-text-white::text").extract_first().strip()
+                restaurant_reviews[name] = []
+        else:
+            try:
+                name = response.css(
+                    "h1.biz-page-title.embossed-text-white::text").extract_first().strip()
+            except AttributeError:
+                name = response.css(
+                    "h1.biz-page-title.embossed-text-white.shortenough::text").extract_first().strip()
 
-        reviews = []
+        #restaurant_reviews[name] = []
+        reviews = [] # getting the reviews
         for i, r in enumerate(response.css("div.review-content > p").extract()):
             reviews.append(self.cleanhtml(r))
-        ratings = []
+        ratings = [] # getting the ratings of the reviews
         for i, r in enumerate(response.xpath('//*[@class="biz-rating biz-rating-large clearfix"]//*/@title').extract()):
             ratings.append(r.strip())
-        pictures = []
+        pictures = [] # see if images exist
         content = response.xpath('.//*[@class="review-content"]')
         for div in content:
             pic = div.xpath(".//ul/li/div/a/@href")
@@ -100,14 +117,15 @@ class BalthasarbotSpider(scrapy.Spider):
                 #pictures.append(div.css(' > p').extract()))
             else:
                 pictures.append("No picture found")
+
         for i, r in enumerate(reviews):
             try:
-                try:
-                    name = response.css("h1.biz-page-title.embossed-text-white::text").extract_first().strip()
-                    restaurant_reviews[name].append((ratings[i],r,pictures[i]))
-                except TypeError:
-                    name = response.css("h1.biz-page-title.embossed-text-white.shortenough::text").extract_first().strip()
-                    restaurant_reviews[name].append((ratings[i],r,pictures[i]))
+                #try:
+                    #name = response.css("h1.biz-page-title.embossed-text-white::text").extract_first().strip()
+                restaurant_reviews[name].append((ratings[i],r,pictures[i]))
+                #except TypeError:
+                    #name = response.css("h1.biz-page-title.embossed-text-white.shortenough::text").extract_first().strip()
+                    #restaurant_reviews[name].append((ratings[i],r,pictures[i]))
             except TypeError:
                 print("Do nothing or to do")
         NEXT_PAGE_SELECTOR = '.u-decoration-none.next.pagination-links_anchor ::attr(href)'
@@ -131,18 +149,16 @@ class BalthasarbotSpider(scrapy.Spider):
 
         # NEXT_PAGE_SELECTOR = 'a.tab-link.js-dropdown-link.tab-link--dropdown.js-tab-link--dropdown ::attr(href)'
         #response.meta['results'] = restaurant_reviews
-
         time.sleep(3)
         if next_page:
-            response.meta['page'] = page + 1
+            #response.meta['page'] = page + 1
             yield scrapy.Request(
                 response.urljoin(next_page),
                 # res.urljoin(next_page),
                 callback=self.parse_restaurant,
-                meta={'page': page+1, 'results':restaurant_reviews}
+                meta={'page': page+1,
+                      'results':restaurant_reviews}
                 )
-
-
         elif 'de' in response.xpath('.//*[@class="tab-link js-dropdown-link tab-link--dropdown js-tab-link--dropdown"]/@data-lang').extract():
             ger_page = response.xpath('.//*[@class="tab-link js-dropdown-link tab-link--dropdown js-tab-link--dropdown" and @data-lang="de"]/@href').extract_first()
             #response.meta['page'] = page + 1
@@ -151,7 +167,8 @@ class BalthasarbotSpider(scrapy.Spider):
             yield scrapy.Request(
                 response.urljoin(ger_page),
                 callback=self.parse_restaurant,
-                meta={'page': 1, 'results':restaurant_reviews}
+                meta={'page': page+1,   # we continue counting pages
+                      'results':restaurant_reviews}
             )
         else:
             #results['German'] = response.xpath('.//*[@class="tab-link js-dropdown-link tab-link--dropdown js-tab-link--dropdown"]/@data-lang').extract_first()
